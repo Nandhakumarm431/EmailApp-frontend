@@ -1,0 +1,176 @@
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { IconButton, InputAdornment, TextField } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
+import CssBaseline from '@mui/material/CssBaseline';
+import Grid from '@mui/material/Grid';
+import Link from '@mui/material/Link';
+import { ThemeProvider } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { useState } from 'react';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+import headerLogo from '../../../images/bg.webp';
+import ForgetPassword from '../forgetPassword/ForgetPassword';
+
+// TODO remove, this demo shouldn't need to reset the theme.
+
+function LoginPage() {
+
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    const [isForgetModalOpen, setIsForgetModalOpen] = useState(false);
+    const openForgetModal = async (e) => {
+        e.preventDefault();
+        setIsForgetModalOpen(true);
+    };
+    const closeForgetModal = () => {
+        setIsForgetModalOpen(false);
+    };
+
+    const [emailorContactNo, setEmailorContactNo] = useState('')
+    const [password, setPassword] = useState('')
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleClickShowPassword = () => setShowPassword(!showPassword);
+
+    const handleForms = (e) => {
+        const { name, value } = e.target;
+        if (name === 'emailorContactNo') {
+            setEmailorContactNo(value)
+        } else if (name === 'password') {
+            setPassword(value)
+        }
+    }
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        let loginData = {
+            "emailorContactNo": emailorContactNo,
+            "password": password
+        }
+        try {
+            const response = await fetch(`${apiUrl}/api/auth/signin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loginData)
+            })
+
+            if (response.ok) {
+                const data = await response.json();
+                NotificationManager.success('Login successfully')
+                localStorage.setItem('userData', JSON.stringify(data))
+ 
+                window.location = '/dashboard'
+            } else {
+                const data = await response.json()
+                NotificationManager.error(data.message)
+            }
+        } catch (error) {
+            NotificationManager.error(error)
+        }
+    };
+
+    //    console.log(localStorage.getItem('userData'));
+
+    return (
+        <div>
+            <Container>
+                <CssBaseline />
+                <Box
+                    sx={{
+                        marginTop: 8,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <img src={headerLogo} alt="Logo" className='app-logo' />
+
+                    <Typography component="h1" variant="h5" className='login-headername'>
+                        Login
+                    </Typography>
+                    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    id="email"
+                                    label="Email Address"
+                                    name="emailorContactNo"
+                                    autoComplete="email"
+                                    value={emailorContactNo} onChange={handleForms}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    required
+                                    fullWidth
+                                    name="password"
+                                    label="Password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    id="password"
+                                    autoComplete="new-password"
+                                    value={password} onChange={handleForms}
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    onClick={handleClickShowPassword}
+                                                    edge="end"
+                                                >
+                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Grid container justifyContent="flex-start">
+                            <Grid item>
+                                <Link href="/signup" variant="body2" onClick={openForgetModal}>
+                                    Forget Password?
+                                </Link>
+                            </Grid>
+                        </Grid>
+                        <Grid container justifyContent="flex-end">
+                            <Button
+                                className='btn-login'
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                            >
+                                Sign In
+                            </Button>
+                        </Grid>
+                        {/* <Grid container justifyContent="flex-end">
+                            <Grid item>
+                                <Link href="/signup" variant="body2">
+                                    Create a new account? Sign up
+                                </Link>
+                            </Grid>
+                        </Grid> */}
+                    </Box>
+                </Box>
+
+            </Container>
+            <NotificationContainer />
+            <ForgetPassword ispassChangeOpen={isForgetModalOpen} onpasschangeClose={closeForgetModal} />
+
+        </div>
+    );
+}
+
+
+export default LoginPage;
