@@ -49,6 +49,7 @@ function EmailRecords() {
     const [selectedBatch, setSelectedBatch] = useState(null);
     const [attachments, setAttachments] = useState([]);
     const [isViewingAttachments, setIsViewingAttachments] = useState(false);
+    const [subMenuData, setSubMenuData] = useState([]);
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -71,24 +72,37 @@ function EmailRecords() {
             setLoading(false);
         }
     };
+
+    const fetchSubMenuData = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/getAllClientNames`);
+            const data = await response.json();
+            setSubMenuData(data);
+        } catch (error) {
+            console.error('Error fetching submenu data:', error);
+        }
+    };
     useEffect(() => {
         fetchData();
+        fetchSubMenuData();
     }, []);
+
 
     // Filter state
     const [mailstatus, setMailstatus] = useState('');
     const [emailFolderType, setEmailFolderType] = useState('');
+    const [clientFilter, setclientFilter] = useState('');
     const [batchId, setBatchId] = useState('');
 
-    const clientID = useSelector(state => state.myReducer.clientID)
+    // const clientID = useSelector(state => state.myReducer.clientID)
 
     const filteredRecords = records.filter((item) =>
         (!batchId || (item.batchId || '').toLowerCase().includes(batchId.toLowerCase())) &&
         (!mailstatus || item.status.toLowerCase() === mailstatus.toLowerCase()) &&
         (!emailFolderType || item.emailFolderType.toLowerCase() === emailFolderType.toLowerCase()) &&
-        (!clientID || item.clientId === parseInt(clientID))
+        (!clientFilter || item.clientId === parseInt(clientFilter))
     );
-    
+
     const handleView = async (record) => {
         try {
             const response = await fetch(`${apiUrl}/getEmailAttachments/${record.id}`);
@@ -184,6 +198,7 @@ function EmailRecords() {
     const clearSearch = () => {
         setBatchId('')
         setEmailFolderType('')
+        setclientFilter('')
     }
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -218,6 +233,14 @@ function EmailRecords() {
                                                 onChange={(e) => setBatchId(e.target.value)}
                                             />
                                             <select className="jm-search-select"
+                                                value={clientFilter}
+                                                onChange={(e) => setclientFilter(e.target.value)}>
+                                                <option>Select Client</option>
+                                                {subMenuData.map((item) => (
+                                                    <option value={item.id}>{item.clientName}</option>
+                                                ))}
+                                            </select>
+                                            <select className="jm-search-select"
                                                 value={emailFolderType}
                                                 onChange={(e) => setEmailFolderType(e.target.value)}>
                                                 <option>Select Email Folder Type</option>
@@ -225,6 +248,7 @@ function EmailRecords() {
                                                 <option value="Not Processed">Not Processed</option>
                                                 <option value="Success">Success</option>
                                             </select>
+
                                             <Button style={{ height: '20px', fontSize: '10px', width: '25px' }}
                                                 variant="contained" color="error" onClick={clearSearch}>
                                                 Clear

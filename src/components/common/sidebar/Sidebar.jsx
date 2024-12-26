@@ -1,4 +1,4 @@
-import { DashboardCustomizeOutlined, LogoutOutlined } from '@mui/icons-material';
+import { BusinessOutlined, DashboardCustomizeOutlined, LogoutOutlined, ManageAccountsOutlined, SettingsApplicationsOutlined } from '@mui/icons-material';
 import HolidayVillageOutlinedIcon from '@mui/icons-material/HolidayVillageOutlined';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,17 +11,29 @@ const Sidebar = ({ hideStyle }) => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const sidebarIcons = [
-    { id: 1, menuItem: 'Dashboard', iconImg: <DashboardCustomizeOutlined className="bx" />, menuLink: '#' },
-    { id: 2, menuItem: 'Email Details', iconImg: <HolidayVillageOutlinedIcon className="bx" />, menuLink: '#' },
-  ];
-
-  const commonSidebar = [
-
-
     {
-      id: 10, menuItem: 'Logout',
-      iconImg: <LogoutOutlined className='bx' />, menuLink: '/logout',
-      styleClr: 'red'
+      id: 1, accessType: 'main', menuItem: 'Dashboard',
+      iconImg: <DashboardCustomizeOutlined className="bx" />, menuLink: '#'
+    },
+    {
+      id: 2, accessType: 'main', menuItem: 'Email Details',
+      iconImg: <HolidayVillageOutlinedIcon className="bx" />, menuLink: '#'
+    },
+    {
+      id: 3, accessType: 'common', menuItem: 'Settings',
+      iconImg: <SettingsApplicationsOutlined className='bx' />, menuLink: '#', styleClr: ''
+    },
+    {
+      id: 4, accessType: 'common', menuItem: 'Logout',
+      iconImg: <LogoutOutlined className='bx' />, menuLink: '/logout', styleClr: 'red'
+    },
+    {
+      id: 5, accessType: 'admin', menuItem: 'Client Details',
+      iconImg: <BusinessOutlined className='bx' />, menuLink: '#', styleClr: ''
+    },
+    {
+      id: 6, accessType: 'admin', menuItem: 'User Account',
+      iconImg: <ManageAccountsOutlined className='bx' />, menuLink: '#', styleClr: ''
     },
   ]
 
@@ -83,31 +95,50 @@ const Sidebar = ({ hideStyle }) => {
 
       {/* Main Sidebar Menu */}
       <ul className="side-menu top">
-        {sidebarIcons.map((data, index) => (
-          <React.Fragment key={index}>
-            <MenuItem
-              data={data}
-              isActive={activeStyle === data.id}
-              onClick={() => styleChange(data)}
-            />
-            {data.id === 2 && openSubMenu && subMenuData.length > 0 && (
-              <SubMenu data={subMenuData} onClientClick={setClientInfo} />
-            )}
-          </React.Fragment>
-        ))}
+        {sidebarIcons
+          .filter(data => data.accessType === 'main')
+          .map((data, index) => (
+            <React.Fragment key={index}>
+              <MenuItem
+                data={data}
+                isActive={activeStyle === data.id}
+                onClick={() => styleChange(data)}
+              />
+              {/* {data.id === 2 && openSubMenu && subMenuData.length > 0 && (
+                <SubMenu data={subMenuData} onClientClick={setClientInfo} />
+              )} */}
+            </React.Fragment>
+          ))}
       </ul>
-      <Divider/>
+      <Divider />
+      {/* Admin sidebar menu */}
+      <ul className="side-menu top">
+        {sidebarIcons
+          .filter(data => data.accessType === 'admin')
+          .map((data, index) => (
+            <React.Fragment key={index}>
+              <MenuItem
+                data={data}
+                isActive={activeStyle === data.id}
+                onClick={() => styleChange(data)}
+              />
+            </React.Fragment>
+          ))}
+      </ul>
+      <Divider />
       <ul className='side-menu'>
-        {commonSidebar.map((data, index) =>
-          <li style={{ color: data.styleClr }} key={index}
-            className={activeStyle === data.id ? 'active' : ''}
-            onClick={() => styleChange(data)}>
-            <a href={data.menuLink}>
-              {data.iconImg}
-              <span className="text">{data.menuItem}</span>
-            </a>
-          </li>
-        )}
+        {sidebarIcons
+          .filter(data => data.accessType === 'common')
+          .map((data, index) =>
+            <li style={{ color: data.styleClr }} key={index}
+              className={activeStyle === data.id ? 'active' : ''}
+              onClick={() => styleChange(data)}>
+              <a href={data.menuLink}>
+                {data.iconImg}
+                <span className="text">{data.menuItem}</span>
+              </a>
+            </li>
+          )}
       </ul>
     </section>
   );

@@ -4,8 +4,12 @@ import { useSelector } from 'react-redux';
 import Dashboard from '../../dashboard/Dashboard';
 import Sidebar from '../sidebar/Sidebar';
 import AccountMenu from './AccountMenu';
-import './appbar.css';
+import Settings from '../../settings/Settings';
+import UserDet from '../../userdetails/UserDet';
 import EmailRecords from '../../emaildetails/EmailRecords';
+
+import './appbar.css';
+import ClientDet from '../../clientDetails/ClientDet';
 
 const Appbar = () => {
 
@@ -42,6 +46,10 @@ const Appbar = () => {
                 </section>
                 {sideMenu === 1 && <Dashboard />}
                 {sideMenu === 2 && <EmailRecords />}
+                {sideMenu === 3 && <Settings />}
+                {sideMenu === 5 && <ClientDet />}
+                {sideMenu === 6 && <UserDet />}
+
             </div>
         </>
     )
